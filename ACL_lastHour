@@ -1,0 +1,73 @@
+Declare @START_TIME datetime = DATEADD(HOUR, -1, GETDATE()),
+	    @END_TIME datetime = GETDATE(),
+		@DC varchar(5) = '06068',
+		@ACL varchar(12) = 'ACL_INPUT',
+		--TOKEN_ID_FILTER:@TOKEN_ID_START int = TOKEN_ID_START_INPUT,
+		--TOKEN_ID_FILTER:@TOKEN_ID_END int = TOKEN_ID_END_INPUT,
+		@TOKEN_ID_STATUS varchar(100) = 'TOKEN_ID_STATUS_INPUT',
+		@LPN varchar(25) = 'LPN_INPUT',
+		@SLOT varchar(5) = 'SLOT_INPUT',
+		--PRIME_FILTER:@PRIME_START int = PRIME_START_INPUT,
+		--PRIME_FILTER:@PRIME_END int = PRIME_END_INPUT,
+		@ITEM varchar(9) = 'ITEM_INPUT',
+		@ACTION varchar(15) = 'ACTION_INPUT',
+		@PRINT_STATUS varchar(25) = 'PRINT_STATUS_INPUT',
+		@LABEL_TYPE varchar(25) = 'LABEL_TYPE_INPUT',
+		@ERROR_TYPE varchar(20) = 'ERROR_TYPE_INPUT',
+		@CORRELATION_ID varchar(100) = 'CORRELATION_ID_INPUT',
+		@MESSAGE_STATUS varchar(25) = 'MESSAGE_STATUS_INPUT',
+		@COMMUNICATION_STATUS varchar(25) = 'COMMUNICATION_STATUS_INPUT',
+		@TIMESTAMP_STATUS varchar(25) = 'TIMESTAMP_STATUS_INPUT',
+		--@SLOT_IDENTIFIER varchar(20) = 'SS-OF-SLOT#',
+		--@SLOT_START varchar(5) = '^FD',
+		--@SLOT_END varchar(1) = '^',
+		@SLOT_IDENTIFIER varchar(20) = '=== SLOT ===',
+		@SLOT_START varchar(5) = '^FD',
+		@SLOT_END varchar(1) = '^',
+		@ITEM_DEFAULT varchar(9) = '000000000',
+		@ITEM_START varchar(10) = '^FDITEM: ',
+		@ITEM_END varchar(1) = '^',
+		@ITEM_LENGTH int = 9,
+		@GROUP_START varchar(10) = '^FDGroup: ',
+		@DEL_START varchar(10) = '^FDDelivery: ',
+		@GROUP_END varchar(1) = '^',
+		@CARTON_ID_DATA varchar(2) = 'FD',
+		@CARTON_ID_IDENTIFIER varchar(22) = 'LABEL BARCODE',
+		@CARTON_ID_LENGTH int = 18,
+		@CARTON_ID varchar(18) = 'CARTON_ID_INPUT',
+		@2D_IDENTIFIER varchar(22) = '2D DATA MATRIX BARCODE',
+		@2D_START varchar(3) = '^FD',
+		@2D_END varchar(3) = '^FS',
+		@2D_SEP_Y varchar(1) = 'Y',
+		@2D_SEP_X varchar(1) = 'X',
+		@DELIVERY_LENGTH integer = 8,
+		@DELIVERY varchar(8) = 'DELIVERY_INPUT',
+		@DATAMATRIX varchar(130) = 'DATAMATRIX_INPUT',
+		@LABEL_DATA varchar(130) = 'LABEL_DATA_INPUT',
+		@LPN_LENGTH integer = 25,
+		@PUT_DL_IDENTIFIER varchar(5) = '^FDDL '
+
+SELECT
+  
+  ld.EQUIPMENT_NAME,
+  ld.LPN,
+
+  case
+    when ld.ERRORTYPE is null and ld.LABELTYPE = 'LABELRESPONSE' and CHARINDEX(@CARTON_ID_DATA, ld.LABELDATA, 0) > 0 then SUBSTRING(ld.LABELDATA, CHARINDEX(@CARTON_ID_DATA, ld.LABELDATA, CHARINDEX(@CARTON_ID_IDENTIFIER, ld.LABELDATA, 0)) + LEN(@CARTON_ID_DATA), @CARTON_ID_LENGTH)
+    when len(ld.lpn) < @LPN_LENGTH then ld.lpn
+    else '' end as CARTON_ID,
+
+  case
+    when ld.ERRORTYPE is null then 'Null'
+    else ld.ERRORTYPE end as ERRORTYPE,
+  
+  ld.INSERT_TIME
+
+FROM 
+  [WM_ACL_ACLD].[dbo].[V_WM_ACL_RTG_LABEL_DATA_BK] ld
+WHERE
+  ld.INSERT_TIME between @START_TIME and @END_TIME
+ -- AND NOT ld.equipment_name in ('ACL_FLOOR_1', 'ACL_FLOOR_2', 'ACL_FLOOR_3')
+
+
+  
