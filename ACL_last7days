@@ -1,4 +1,4 @@
-Declare @START_TIME datetime = DATEADD(HOUR, -1, GETDATE()),
+Declare @START_TIME datetime = DATEADD(DAY, -7, GETDATE()),
 	    @END_TIME datetime = GETDATE(),
 		@DC varchar(5) = '06068',
 		@ACL varchar(12) = 'ACL_INPUT',
